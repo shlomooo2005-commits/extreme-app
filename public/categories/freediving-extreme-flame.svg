@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Extreme fire">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0a14"/>
+      <stop offset="55%" stop-color="#1a0808"/>
+      <stop offset="100%" stop-color="#120404"/>
+    </linearGradient>
+    <linearGradient id="flameA" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#7f1d1d"/>
+      <stop offset="35%" stop-color="#ea580c"/>
+      <stop offset="70%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fef3c7"/>
+    </linearGradient>
+    <linearGradient id="flameB" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#991b1b"/>
+      <stop offset="45%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fde047"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="75%" r="45%">
+      <stop offset="0%" stop-color="#ff6b00" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ff6b00" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <ellipse cx="600" cy="680" rx="420" ry="120" fill="url(#glow)" filter="url(#blur)"/>
+  <path fill="url(#flameA)" d="M600 720 C520 620 480 480 520 360 C540 280 580 200 600 120 C620 200 660 280 680 360 C720 480 680 620 600 720Z" opacity="0.95"/>
+  <path fill="url(#flameB)" d="M600 700 C560 620 545 500 570 400 C585 330 595 250 600 180 C605 250 615 330 630 400 C655 500 640 620 600 700Z" opacity="0.9"/>
+  <path fill="#fef08a" d="M600 640 C580 580 575 500 590 420 C598 370 600 320 600 280 C600 320 602 370 610 420 C625 500 620 580 600 640Z" opacity="0.85"/>
+  <path fill="#ffedd5" opacity="0.5" d="M420 720 C400 640 410 560 450 500 C470 460 490 420 500 380 C480 450 460 520 440 600 C430 660 420 700 420 720Z"/>
+  <path fill="#ffedd5" opacity="0.45" d="M780 720 C800 640 790 560 750 500 C730 460 710 420 700 380 C720 450 740 520 760 600 C770 660 780 700 780 720Z"/>
+  <circle cx="320" cy="200" r="3" fill="#fbbf24" opacity="0.6"/>
+  <circle cx="880" cy="240" r="2" fill="#fb923c" opacity="0.5"/>
+  <circle cx="760" cy="160" r="2.5" fill="#fde047" opacity="0.45"/>
+  <circle cx="400" cy="280" r="2" fill="#f97316" opacity="0.4"/>
+</svg>
