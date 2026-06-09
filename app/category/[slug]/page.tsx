@@ -7,6 +7,8 @@ import {
   resolveCategorySlug,
 } from "@/lib/competitions"
 
+export const dynamic = "force-dynamic"
+
 export function generateStaticParams() {
   return getCategories().map((category) => ({ slug: category.slug }))
 }
