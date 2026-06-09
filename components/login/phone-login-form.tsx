@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2, Phone, ShieldCheck } from "lucide-react"
-import { supabase } from "@/lib/supabaseClient"
+import { isSupabaseClientConfigured, supabase } from "@/lib/supabaseClient"
 import {
   isValidInternationalPhone,
   isValidOtpCode,
@@ -32,7 +32,7 @@ export function PhoneLoginForm() {
     setError(null)
     setMessage(null)
 
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (!isSupabaseClientConfigured()) {
       showError("Authentication is not configured. Contact support.", setError)
       return
     }
@@ -47,11 +47,16 @@ export function PhoneLoginForm() {
     }
 
     setLoading(true)
-    const { error: otpError } = await supabase.auth.signInWithOtp({ phone: normalized })
+    const res = await fetch("/api/auth/otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: normalized }),
+    })
+    const data = await res.json().catch(() => ({}))
     setLoading(false)
 
-    if (otpError) {
-      showError(otpError.message, setError)
+    if (!res.ok) {
+      showError(data.error ?? "Failed to send verification code.", setError)
       return
     }
 
@@ -71,16 +76,29 @@ export function PhoneLoginForm() {
     }
 
     setLoading(true)
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      phone,
-      token: code,
-      type: "sms",
+    const res = await fetch("/api/auth/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, token: code }),
     })
+    const data = await res.json().catch(() => ({}))
     setLoading(false)
 
-    if (verifyError) {
-      showError(verifyError.message, setError)
+    if (!res.ok) {
+      showError(data.error ?? "Failed to verify code.", setError)
       return
+    }
+
+    if (data.session) {
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      })
+
+      if (sessionError) {
+        showError(sessionError.message, setError)
+        return
+      }
     }
 
     setMessage("Signed in successfully. Redirecting…")
