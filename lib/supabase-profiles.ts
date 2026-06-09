@@ -8,7 +8,7 @@ import {
 export interface UserProfileRow {
   id: string
   display_name: string | null
-  preferred_sport_interests: string[]
+  preferred_sport_interests: SportInterestSlug[]
   created_at: string
   updated_at: string
 }
