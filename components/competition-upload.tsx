@@ -13,7 +13,6 @@ import { uploadVideoToCloudinary } from "@/lib/upload-cloudinary"
 import { getUploadIdentity, isUploadUnlocked } from "@/lib/auth-bridge"
 import { useSupabaseSession } from "@/hooks/use-supabase-session"
 import { useUserAccount } from "@/hooks/use-user-account"
-import { saveUserSubmission } from "@/lib/user-submissions-store"
 import { PersonalDetailsForm } from "@/components/profile/personal-details-form"
 import { SubmissionSourceBadge } from "@/components/submission-source-badge"
 import { getKaraokeChallengeForCompetition } from "@/lib/karaoke-challenges"
@@ -274,15 +273,6 @@ export function CompetitionUpload({
 
       const { submission: payload } = await prepareRes.json()
       setSubmission(payload)
-
-      saveUserSubmission({
-        userId: identity.userId,
-        fullName: identity.fullName,
-        email: identity.email,
-        phone: identity.phone,
-        payload,
-        savedAt: new Date().toISOString(),
-      })
 
       const queueKey = "hobbyx-ai-submission-queue"
       const existing = JSON.parse(localStorage.getItem(queueKey) ?? "[]")

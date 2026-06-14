@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import type { User } from "@supabase/supabase-js"
 import type { UserSubmissionSummary } from "@/app/api/submissions/mine/route"
-import { getSubmissionsForUser } from "@/lib/user-submissions-store"
+import { supabase } from "@/lib/supabaseClient"
 
 interface UseUserSubmissionsResult {
   submissions: UserSubmissionSummary[]
@@ -11,25 +11,6 @@ interface UseUserSubmissionsResult {
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
-}
-
-function localToSummary(
-  record: ReturnType<typeof getSubmissionsForUser>[number],
-): UserSubmissionSummary {
-  const { payload } = record
-  return {
-    id: payload.submissionId,
-    competitionId: payload.competitionId ?? "",
-    challengeTitle: payload.challengeTitle,
-    categorySlug: payload.category,
-    videoUrl: payload.video.secureUrl,
-    posterUrl: payload.video.secureUrl.replace("/upload/", "/upload/so_0/"),
-    status: payload.security?.status ?? "active",
-    submittedAt: payload.submittedAt,
-    rank: null,
-    totalInCompetition: null,
-    likesCount: null,
-  }
 }
 
 export function useUserSubmissions(user: User | null): UseUserSubmissionsResult {
@@ -51,7 +32,16 @@ export function useUserSubmissions(user: User | null): UseUserSubmissionsResult 
     setError(null)
 
     try {
-      const res = await fetch(`/api/submissions/mine?userId=${encodeURIComponent(user.id)}`)
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const headers: HeadersInit = {}
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`
+      }
+
+      const res = await fetch("/api/submissions/mine", { headers })
       const data = await res.json()
 
       if (!res.ok) {
@@ -59,22 +49,11 @@ export function useUserSubmissions(user: User | null): UseUserSubmissionsResult 
       }
 
       const fromApi = (data.submissions ?? []) as UserSubmissionSummary[]
-      const apiIds = new Set(fromApi.map((item) => item.id))
-      const localOnly = getSubmissionsForUser(user.id)
-        .map(localToSummary)
-        .filter((item) => !apiIds.has(item.id))
-
-      const merged = [...fromApi, ...localOnly].sort(
-        (a, b) =>
-          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
-      )
-
-      setSubmissions(merged)
-      setTotal(merged.length)
+      setSubmissions(fromApi)
+      setTotal(fromApi.length)
     } catch (err) {
-      const local = getSubmissionsForUser(user.id).map(localToSummary)
-      setSubmissions(local)
-      setTotal(local.length)
+      setSubmissions([])
+      setTotal(0)
       setError(err instanceof Error ? err.message : "Failed to load your uploads.")
     } finally {
       setLoading(false)

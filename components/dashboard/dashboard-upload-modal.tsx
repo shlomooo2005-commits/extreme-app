@@ -7,10 +7,7 @@ import type { Competition } from "@/lib/competitions"
 import { getUploadIdentity } from "@/lib/auth-bridge"
 import { getSubmissionRules } from "@/lib/submission-rules"
 import { isValidEmail } from "@/lib/user-account"
-import { saveUserSubmission } from "@/lib/user-submissions-store"
-import { publishVideoSubmission } from "@/lib/supabase-video-submissions"
 import { uploadVideoToCloudinary } from "@/lib/upload-cloudinary"
-import type { AISubmissionPayload } from "@/lib/submission"
 import type { ClientFileProbe } from "@/lib/video-verification"
 import type { ServerVerificationResult } from "@/lib/video-verification-server"
 import { VerifiedFileUpload } from "@/components/verified-file-upload"
@@ -153,28 +150,12 @@ export function DashboardUploadModal({
         }),
       })
 
+      const data = await prepareRes.json().catch(() => ({}))
       if (!prepareRes.ok) {
-        const data = await prepareRes.json().catch(() => ({}))
-        throw new Error(data.error ?? "Failed to submit entry.")
+        throw new Error(
+          typeof data.error === "string" ? data.error : "Failed to submit entry.",
+        )
       }
-
-      const { submission: payload } = (await prepareRes.json()) as {
-        submission: AISubmissionPayload
-      }
-
-      saveUserSubmission({
-        userId: identity.userId,
-        fullName: athleteName.trim() || identity.fullName,
-        email: email.trim() || identity.email,
-        phone,
-        payload,
-        savedAt: new Date().toISOString(),
-      })
-
-      await publishVideoSubmission({
-        payload,
-        userId: identity.userId,
-      })
 
       onPublished?.()
 

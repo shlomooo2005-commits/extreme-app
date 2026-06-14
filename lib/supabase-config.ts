@@ -34,6 +34,10 @@ export function getSupabaseAnonKey(): string {
   ).trim()
 }
 
+export function isSupabaseConfigured(): boolean {
+  return Boolean(getSupabaseUrl() && getSupabaseAnonKey())
+}
+
 export function assertSupabaseConfigured(): { url: string; anonKey: string } {
   const url = getSupabaseUrl()
   const anonKey = getSupabaseAnonKey()

@@ -15,6 +15,8 @@ import {
   isSubmissionsDbConfigured,
   runSubmissionFingerprintScan,
 } from "@/lib/submissions-db"
+import { isSupabaseConfigured } from "@/lib/supabase-config"
+import { publishVideoSubmissionServer } from "@/lib/supabase-video-submissions"
 import { isValidEmail, isValidPhone } from "@/lib/user-account"
 import {
   getCaptureMethodForCompetition,
@@ -209,6 +211,21 @@ export async function POST(request: Request) {
           }
         })
       }
+    }
+
+    if (isSupabaseConfigured()) {
+      await publishVideoSubmissionServer({
+        payload: submission,
+        userId,
+      })
+    } else if (!isSubmissionsDbConfigured()) {
+      return NextResponse.json(
+        {
+          error:
+            "Video storage is not configured. Set Supabase or POSTGRES_URL environment variables.",
+        },
+        { status: 503 },
+      )
     }
 
     return NextResponse.json({
